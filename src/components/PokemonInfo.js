@@ -3,24 +3,36 @@ import {fetchPokemon} from '../hooks/fetchPokemon'
 import {PokemonDataView} from './PokemonDataView'
 import {PokemonInfoFallback} from './PokemonInfoFallback'
 export function PokemonInfo({pokemonName}) {
-  const [pokemon, setPokemon] = useState(null)
-  const [error, setError] = useState(null)
-  const [status, setStatus] = useState('idle')
+  //   const [pokemon, setPokemon] = useState(null)
+  //   const [error, setError] = useState(null)
+  //   const [status, setStatus] = useState('idle')
+
+  const [state, setState] = useState({
+    pokemon: null,
+    error: null,
+    status: 'idle',
+  })
+
+  const {pokemon, error, status} = state // the destructuration, I could have done it directly at useState, but I think to see better this way
+
   useEffect(() => {
     if (!pokemonName) {
       return
     }
     // setPokemon(null) // when te state change, setPokemon will again null for load the new pokemon
     // setError(null) // when te state change, setError will again null for load the new pokemon
-    setStatus('rending')
+    // setStatus('pending')
+    setState({status: 'pending'})
     fetchPokemon(pokemonName).then(
       pokemon => {
-        setPokemon(pokemon)
-        setStatus('resolved')
+        setState({pokemon, status: 'resolved'})
+        // setPokemon(pokemon)
+        // setStatus('resolved')
       },
       error => {
-        setError(error)
-        setStatus('rejected')
+        setState({error, status: 'rejected'})
+        // setError(error)
+        // setStatus('rejected')
       },
     )
   }, [pokemonName])
@@ -28,7 +40,7 @@ export function PokemonInfo({pokemonName}) {
   // there is a most logic about the show the user, so implemented a state for handle our components
   if (status === 'idle') {
     return 'Submit a pokemon' // when it load to first screen,  there isn't pokemon, so to show this message
-  } else if (status === 'rending') {
+  } else if (status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} /> //when the request is being made, it shower theimg load
   } else if (status === 'rejected') {
     return (
