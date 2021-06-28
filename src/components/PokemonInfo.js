@@ -4,10 +4,6 @@ import {PokemonDataView} from './PokemonDataView'
 import {PokemonInfoFallback} from './PokemonInfoFallback'
 
 export function PokemonInfo({pokemonName}) {
-  //   const [pokemon, setPokemon] = useState(null)
-  //   const [error, setError] = useState(null)
-  //   const [status, setStatus] = useState('idle')
-
   const [state, setState] = useState({
     status: pokemonName ? 'pending' : 'idle', // there was a little refresh when already have a pokemon loaded, if we will make a new petition that pokemon refresh the component
     pokemon: null,
@@ -20,20 +16,14 @@ export function PokemonInfo({pokemonName}) {
     if (!pokemonName) {
       return
     }
-    // setPokemon(null) // when te state change, setPokemon will again null for load the new pokemon
-    // setError(null) // when te state change, setError will again null for load the new pokemon
-    // setStatus('pending')
+
     setState({status: 'pending'})
     fetchPokemon(pokemonName).then(
       pokemon => {
         setState({status: 'resolved', pokemon})
-        // setPokemon(pokemon)
-        // setStatus('resolved')
       },
       error => {
         setState({status: 'rejected', error})
-        // setError(error)
-        // setStatus('rejected')
       },
     )
   }, [pokemonName])
@@ -53,21 +43,4 @@ export function PokemonInfo({pokemonName}) {
   } else if (status === 'resolved') {
     return <PokemonDataView pokemon={pokemon} /> // return the pokemon with its information
   }
-
-  // this was the as I had the logic implemented, without handle the status, I don't remove for think like it was
-  //   if (error) {
-  //     // this validation will executed when the name pokemon not exit
-  //     return (
-  //       <div role="alert">
-  //         There was an error:{' '}
-  //         <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
-  //       </div>
-  //     )
-  //   } else if (!pokemonName) {
-  //     return 'Submit a pokemon' // when it load to first screen,  there isn't pokemon, so to show this message
-  //   } else if (!pokemon) {
-  //     return <PokemonInfoFallback name={pokemonName} /> //when the request is being made, it shower theimg load
-  //   } else {
-  //     return <PokemonDataView pokemon={pokemon} /> // return the pokemon with its information
-  //   }
 }
