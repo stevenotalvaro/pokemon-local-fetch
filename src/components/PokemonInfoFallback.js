@@ -1,5 +1,5 @@
 import React, {useRef} from 'react'
-
+import {PokemonDataView} from './PokemonDataView'
 export function PokemonInfoFallback({name}) {
   const initialName = useRef(name).current
   const fallbackPokemonData = {
