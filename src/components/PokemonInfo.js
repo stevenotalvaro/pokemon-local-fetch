@@ -2,15 +2,16 @@ import React, {useEffect, useState} from 'react'
 import {fetchPokemon} from '../hooks/fetchPokemon'
 import {PokemonDataView} from './PokemonDataView'
 import {PokemonInfoFallback} from './PokemonInfoFallback'
+
 export function PokemonInfo({pokemonName}) {
   //   const [pokemon, setPokemon] = useState(null)
   //   const [error, setError] = useState(null)
   //   const [status, setStatus] = useState('idle')
 
   const [state, setState] = useState({
+    status: pokemonName ? 'pending' : 'idle', // there was a little refresh when already have a pokemon loaded, if we will make a new petition that pokemon refresh the component
     pokemon: null,
     error: null,
-    status: 'idle',
   })
 
   const {pokemon, error, status} = state // the destructuration, I could have done it directly at useState, but I think to see better this way
@@ -25,12 +26,12 @@ export function PokemonInfo({pokemonName}) {
     setState({status: 'pending'})
     fetchPokemon(pokemonName).then(
       pokemon => {
-        setState({pokemon, status: 'resolved'})
+        setState({status: 'resolved', pokemon})
         // setPokemon(pokemon)
         // setStatus('resolved')
       },
       error => {
-        setState({error, status: 'rejected'})
+        setState({status: 'rejected', error})
         // setError(error)
         // setStatus('rejected')
       },

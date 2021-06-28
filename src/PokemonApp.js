@@ -1,11 +1,17 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {PokemonForm} from './components/PokemonForm'
 import {PokemonInfo} from './components/PokemonInfo'
+import {ErrorBoundary} from 'react-error-boundary'
+
 export const PokemonApp = () => {
-  const [pokemonName, setPokemonName] = React.useState('')
+  const [pokemonName, setPokemonName] = useState('')
 
   function handleSubmit(newPokemonName) {
     setPokemonName(newPokemonName)
+  }
+
+  function handleReset() {
+    setPokemonName('')
   }
 
   return (
@@ -13,7 +19,9 @@ export const PokemonApp = () => {
       <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
       <hr />
       <div className="pokemon-info">
-        <PokemonInfo pokemonName={pokemonName} />
+        <ErrorBoundary onReset={handleReset} resetKeys={[pokemonName]}>
+          <PokemonInfo pokemonName={pokemonName} />
+        </ErrorBoundary>
       </div>
     </div>
   )
