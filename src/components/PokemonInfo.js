@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useReducer} from 'react'
+import React, {useCallback, useEffect, useReducer, useRef} from 'react'
 import {fetchPokemon} from '../hooks/fetchPokemon'
 import {PokemonDataView} from './PokemonDataView'
 import {PokemonInfoFallback} from './PokemonInfoFallback'
@@ -24,12 +24,30 @@ function pokemonInfoReducer(state, action) {
 }
 
 function usePokemonAsyncReducer(asyncCallback, initialState) {
-  const [state, dispatch] = useReducer(pokemonInfoReducer, {
+  const [state, unsefDispatch] = useReducer(pokemonInfoReducer, {
     status: 'idle', // there was a little refresh when already have a pokemon loaded, if we will make a new petition that pokemon refresh the component
     data: null,
     error: null,
     ...initialState,
   })
+
+  // useRef was implement if was a error while loaded the informecion and the user get out the page, already the compenent it wasnt dissembled,
+  // even so will be the petcion and the user get aoy the page, so throw a error, with useRef not throw a error
+
+  const mounted = useRef(false)
+
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
+
+  const dispatch = useCallback((...args) => {
+    if (mounted.current) {
+      unsefDispatch(...args)
+    }
+  }, [])
 
   useEffect(() => {
     const promise = asyncCallback() // at our useEffect, it will call  the callback async, and if it have nothing, for example a pokemon, return nothing
