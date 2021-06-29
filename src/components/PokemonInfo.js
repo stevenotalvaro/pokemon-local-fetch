@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer} from 'react'
+import React, {useCallback, useEffect, useReducer} from 'react'
 import {fetchPokemon} from '../hooks/fetchPokemon'
 import {PokemonDataView} from './PokemonDataView'
 import {PokemonInfoFallback} from './PokemonInfoFallback'
@@ -23,7 +23,7 @@ function pokemonInfoReducer(state, action) {
   }
 }
 
-function usePokemonAyncReducer(asyncCallback, initialState, dependencies) {
+function usePokemonAsyncReducer(asyncCallback, initialState) {
   const [state, dispatch] = useReducer(pokemonInfoReducer, {
     status: 'idle', // there was a little refresh when already have a pokemon loaded, if we will make a new petition that pokemon refresh the component
     data: null,
@@ -32,35 +32,38 @@ function usePokemonAyncReducer(asyncCallback, initialState, dependencies) {
   })
 
   useEffect(() => {
-    const promise = asyncCallback()
+    const promise = asyncCallback() // at our useEffect, it will call  the callback async, and if it have nothing, for example a pokemon, return nothing
     if (!promise) {
       return
     }
 
-    dispatch({type: 'pending'})
+    dispatch({type: 'pending'}) // and if it have something, the first accion is 'pending' while load the information of pokemon
     promise.then(
       data => {
-        dispatch({type: 'resolved', data})
+        dispatch({type: 'resolved', data}) // if the requets it's succecssful, return its informacion
       },
       error => {
-        dispatch({type: 'rejected', error})
+        dispatch({type: 'rejected', error}) // otherwise, throw a error
       },
     )
-  }, dependencies)
+  }, [asyncCallback])
   return state
 }
 
 export function PokemonInfo({pokemonName}) {
-  const state = usePokemonAyncReducer(
-    () => {
-      if (!pokemonName) {
-        return
-      }
-      return fetchPokemon(pokemonName)
-    },
-    {status: pokemonName ? 'pending' : 'idle'},
-    [pokemonName],
-  )
+  const asyncCallback = useCallback(() => {
+    // it implemented useCallback already that every time, it was called the pokemon name if this not change
+    if (!pokemonName) {
+      return
+    }
+    return fetchPokemon(pokemonName)
+  }, [pokemonName])
+  // The next block, I will handle asyncronico for to have un Custom Hook  (usePokemonAsyncReducer), when  first argument is the callback async
+  // second argument is the initial state, with implementatio of useCallback, We don't have to send dependencies, because
+  // be in the array de depencies from usecallback
+  const state = usePokemonAsyncReducer(asyncCallback, {
+    status: pokemonName ? 'pending' : 'idle',
+  })
 
   const {data: pokemon, error, status} = state // the destructuration, I could have done it directly at useState, but I think to see better this way
 
